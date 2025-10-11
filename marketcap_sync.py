@@ -100,15 +100,15 @@ def coinmarketcap(url, page_index):
 
     # Initialize Playwright instance
     with sync_playwright() as sp:
-        logging.info(f'page {page_index + 1}: open browser')
+        logging.info(f'page {page_index}: open browser')
         # Launch Chromium browser (headless=False means the browser UI is visible)
         with sp.chromium.launch(headless=False) as browser:
-            logging.info(f'page {page_index + 1}: open context')
+            logging.info(f'page {page_index}: open context')
             # Create a new context with the generated headers
             context = browser.new_context(extra_http_headers=headers)
-            logging.info(f'page {page_index + 1}: open page')
+            logging.info(f'page {page_index}: open page')
             page = context.new_page()
-            logging.info(f'page {page_index + 1}: go to page {url}')
+            logging.info(f'page {page_index}: go to page {url}')
             # Navigate to the URL, waiting until the network is idle
             response = page.goto(url, wait_until="networkidle", timeout=60000)
 
@@ -118,7 +118,7 @@ def coinmarketcap(url, page_index):
                 logging.info(f"{url} → Status: {status}")
 
             # _____________ Scroll page _____________
-            logging.info(f'page {page_index + 1}: start scroll')
+            logging.info(f'page {page_index}: start scroll')
             # Start the scrolling process to load all data via JavaScript
             count, max_count = 0, 10
             while count < max_count:
@@ -137,7 +137,7 @@ def coinmarketcap(url, page_index):
                 # If height changed, reset the counter
                 else:
                     count = 0
-            logging.info(f"page {page_index + 1}: finish scroll {url}")
+            logging.info(f"page {page_index}: finish scroll {url}")
 
             # Extract the full HTML content of the page after scrolling
             html_text = page.content()
@@ -247,13 +247,13 @@ def process_page(url, page_index):
 
         # Check if any coins were scraped
         if not coins:
-            logging.warning(f"page {page_index + 1}: no coins scraped")
+            logging.warning(f"page {page_index}: no coins scraped")
             return
 
         # Insert coins into the database
         for coin in coins:
             insert_coin(db, coin)
-            logging.info(f"page {page_index + 1}: Inserted coin {coin.get('name')}")
+            logging.info(f"page {page_index}: Inserted coin {coin.get('name')}")
 
     finally:
         # Ensure the database connection is closed
