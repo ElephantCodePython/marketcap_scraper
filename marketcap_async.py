@@ -135,15 +135,15 @@ async def coinmarketcap(url, page_index):
 
     # Initialize Playwright instance asynchronously
     async with async_playwright() as p:
-        logging.info(f'page {page_index + 1}: open browser')
+        logging.info(f'page {page_index}: open browser')
         # Launch Chromium browser
         browser = await p.chromium.launch(headless=False)
-        logging.info(f'page {page_index + 1}: open context')
+        logging.info(f'page {page_index}: open context')
         # Create a new context with the generated headers
         context = await browser.new_context(extra_http_headers=headers)
-        logging.info(f'page {page_index + 1}: open page')
+        logging.info(f'page {page_index}: open page')
         page = await context.new_page()
-        logging.info(f'page {page_index + 1}: go to page {url}')
+        logging.info(f'page {page_index}: go to page {url}')
         # Navigate to the URL, waiting until the network is idle
         response = await page.goto(url, wait_until="networkidle", timeout=240000)
 
@@ -153,7 +153,7 @@ async def coinmarketcap(url, page_index):
             logging.info(f"{url} → Status: {status}")
 
         # Scroll page
-        logging.info(f'page {page_index + 1}: start scroll')
+        logging.info(f'page {page_index}: start scroll')
 
         # Start the scrolling process to load all data via JavaScript
         count, max_count = 0, 20
@@ -174,14 +174,14 @@ async def coinmarketcap(url, page_index):
             else:
                 count = 0
 
-        logging.info(f"page {page_index + 1}: finish scroll {url}")
+        logging.info(f"page {page_index}: finish scroll {url}")
 
         # Extract the full HTML content of the page after scrolling
         html_text = await page.content()
         # Close the browser after content extraction
         await browser.close()
 
-    logging.info(f'page {page_index + 1}: start scraping')
+    logging.info(f'page {page_index}: start scraping')
     # Create BeautifulSoup object to parse the HTML
     soup = BeautifulSoup(html_text, 'html.parser')
     try:
@@ -256,8 +256,8 @@ async def coinmarketcap(url, page_index):
                 yield normalized_coin
     except Exception as e:
         # Log error if an issue occurs during the scraping process
-        logging.error(f'ERROR: page {page_index + 1} error is: {e}')
-    logging.info(f'page {page_index + 1}: end scraping')
+        logging.error(f'ERROR: page {page_index} error is: {e}')
+    logging.info(f'page {page_index}: end scraping')
 
 
 # ---------- Asynchronous Execution Pipeline ----------
@@ -277,7 +277,7 @@ async def process_page(db, url, page_index):
     async for coin in coinmarketcap(url, page_index):
         # Insert the coin into the database asynchronously
         await insert_coin(db, coin)
-        logging.info(f"page {page_index + 1}: Inserted coin {coin.get('name')}")
+        logging.info(f"page {page_index}: Inserted coin {coin.get('name')}")
 
 
 async def main():
